@@ -7,7 +7,6 @@ WORKDIR /app
 # Copy code into container
 COPY src/ ./src/
 COPY requirements.txt ./
-COPY notebooks/ ./notebooks/
 COPY tests/ ./tests/
 
 # Install Python packages (use system pip)
