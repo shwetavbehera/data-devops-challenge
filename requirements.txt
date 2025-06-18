@@ -1,0 +1,3 @@
+gdown
+python-dotenv
+pytest
