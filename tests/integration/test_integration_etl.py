@@ -39,5 +39,5 @@ def test_etl_pipeline(spark, tmp_path):
     avg_loan_df = transformer.avg_loan_per_district()
 
     rows = avg_loan_df.collect()
-    # Only one district_id (77) because trans with account_id==2 is filtered out
-    assert rows == [(77, 1000.0)]
+    rows_by_id = {r["district_id"]: r["avg_loan_amount"] for r in rows}
+    assert rows_by_id == {77: 1000.0, 88: 2000.0}
