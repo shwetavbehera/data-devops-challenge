@@ -23,31 +23,31 @@ spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args["JOB_NAME"], args)
 
-# Step 1: Read input
+# read input
 reader = DataReader(spark, base_path=args["source_path"])
 dfs = reader.read_all()
 
-# Step 2: Clean
+# clean
 cleaner = DataCleaner(dfs)
 dfs_cleaned = cleaner.clean()
 
-# Step 3: Transform
+# transform
 transformer = DataTransformer(dfs_cleaned)
 
-# Step 4: Write output
+# write output
 writer = DataWriter()
 
-# Write cleaned transactions to: <destination_path>/transactions_cleaned/
+# write cleaned transactions to: <destination_path>/transactions_cleaned/
 writer.write_parquet(
     transformer.cleaned_transactions(),
     f"{args['destination_path']}transactions_cleaned/"
 )
 
-# Write average loan per district to: <destination_path>/avg_loan_by_district/
+# write average loan per district to: <destination_path>/avg_loan_by_district/
 writer.write_parquet(
     transformer.avg_loan_per_district(),
     f"{args['destination_path']}avg_loan_by_district/"
 )
 
-# Step 5: Commit job
+# commit job
 job.commit()

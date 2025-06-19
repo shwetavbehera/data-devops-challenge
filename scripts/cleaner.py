@@ -13,13 +13,14 @@ class DataCleaner:
         trans   = self.dfs["trans"]
         loans   = self.dfs["loan"]
 
-        # a) correct typo
+        # correct typo
         trans = trans.withColumn(
             "type",
             F.when(F.col("type") == "PRJIEM", "PRIJEM").otherwise(F.col("type"))
         )
 
-        # b) filter invalid account_id
+        # no contract table, so assumption: all that have loans, have contracts
+        # filter invalid account_id
         valid_accounts = loans.select("account_id").distinct()
         trans = (trans
                  .join(valid_accounts, on="account_id", how="inner")
