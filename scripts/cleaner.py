@@ -1,35 +1,31 @@
-from pyspark.sql import DataFrame
-from typing import Dict
-
+from pyspark.sql import functions as F
 
 class DataCleaner:
-    def __init__(self, dataframes: Dict[str, DataFrame]):
-        self.dfs = dataframes
+    """
+    * Fix typo PRJIEM → PRIJEM in trans.type
+    * Keep only transactions whose `account_id` occurs in the *loan*
+      table (=> interpreted here as the ‘contract’ table).
+    """
+    def __init__(self, dfs: dict[str, "DataFrame"]):
+        self.dfs = dfs
 
-    def fix_trans_typo(self) -> DataFrame:
-        """
-        Corrects the typo 'PRJIEM' to 'PRIJEM' in the 'type' column of the 'trans' table.
-        """
-        return self.dfs["trans"].withColumn(
+    def clean(self) -> dict[str, "DataFrame"]:
+        trans   = self.dfs["trans"]
+        loans   = self.dfs["loan"]
+
+        # a) correct typo
+        trans = trans.withColumn(
             "type",
-            self.dfs["trans"]["type"].replace("PRJIEM", "PRIJEM")
+            F.when(F.col("type") == "PRJIEM", "PRIJEM").otherwise(F.col("type"))
         )
 
-    def filter_invalid_transactions(self) -> DataFrame:
-        """
-        Removes transactions with an account_id not present in the contract table (order).
-        """
-        valid_ids = self.dfs["order"].select("account_id").distinct()
-        return self.dfs["trans"].join(valid_ids, on="account_id", how="inner")
+        # b) filter invalid account_id
+        valid_accounts = loans.select("account_id").distinct()
+        trans = (trans
+                 .join(valid_accounts, on="account_id", how="inner")
+                 .dropDuplicates())
 
-    def clean(self) -> Dict[str, DataFrame]:
-        """
-        Applies all cleaning steps and returns updated DataFrames.
-        """
-        trans_cleaned = self.fix_trans_typo()
-        self.dfs["trans"] = trans_cleaned
-
-        trans_filtered = self.filter_invalid_transactions()
-        self.dfs["trans"] = trans_filtered
-
-        return self.dfs
+        # return the updated dict
+        cleaned = self.dfs.copy()
+        cleaned["trans"] = trans
+        return cleaned
