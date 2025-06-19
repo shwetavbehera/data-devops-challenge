@@ -1,8 +1,8 @@
 import pytest
 from pyspark.sql import SparkSession
-from reader import DataReader
-from cleaner import DataCleaner
-from transformer import DataTransformer
+from scripts.reader import DataReader
+from scripts.cleaner import DataCleaner
+from scripts.transformer import DataTransformer
 
 @pytest.fixture
 def spark():

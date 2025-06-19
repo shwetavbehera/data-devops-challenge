@@ -8,11 +8,11 @@ class DataTransformer:
     def __init__(self, dfs: dict[str, "DataFrame"]):
         self.dfs = dfs
 
-    # ---------- 1. “Main result” – cleaned transactions -------------
+    # Cleaned transactions
     def cleaned_transactions(self):
         return self.dfs["trans"]
 
-    # ---------- 2. “Bonus” – avg loan per district -----------------
+    # Avg loan per district
     def avg_loan_per_district(self):
         loan     = self.dfs["loan"]
         account  = self.dfs["account"]
