@@ -18,6 +18,17 @@ def test_etl_pipeline(spark, tmp_path):
     (source_path / "loan.csv").write_text("account_id;amount\n1;1000\n2;2000")
     (source_path / "trans.csv").write_text("account_id;type\n1;PRJIEM\n2;VYDAJ")
 
+    # so Spark can infer a schema
+    stubs = {
+        "card": "card_id;disp_id;type\n",
+        "client": "client_id;birth_number;district_id\n",
+        "disp": "disp_id;client_id;account_id;type\n",
+        "district": "district_id;name\n",
+        "order": "order_id;account_id;bank_to;account_to;amount;k_symbol\n",
+    }
+    for name, content in stubs.items():
+        (source_path / f"{name}.csv").write_text(content)
+
     reader = DataReader(spark, str(source_path))
     dfs = reader.read_all()
 
